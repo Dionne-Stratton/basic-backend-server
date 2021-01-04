@@ -3,24 +3,25 @@ exports.up = function (knex) {
     .createTable("users", (tbl) => {
       tbl.increments();
       tbl.string("username", 128).notNullable().unique().index();
-      tbl.string("password", 256).notNullable();
+      tbl.string("password", 128).notNullable();
+      tbl.string("email", 128).notNullable().unique();
     })
     .createTable("posts", (tbl) => {
       tbl.increments();
       tbl.string("title", 128).notNullable().unique();
-      tbl.string("text", 128);
-      tbl.string("image", 128).notNullable();
+      tbl.string("story", 128);
+      tbl.string("image_url", 128).notNullable();
       tbl
         .integer("user_id")
         .unsigned()
         .notNullable()
-        .references("user_id")
-        .inTable("recipes")
+        .references("id")
+        .inTable("users")
         .onDelete("CASCADE")
         .onUpdate("CASCADE");
     });
 };
 
 exports.down = function (knex) {
-  return knex.schema.dropTableIfExists("users").dropTableIfExists("posts");
+  return knex.schema.dropTableIfExists("posts").dropTableIfExists("users");
 };

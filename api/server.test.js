@@ -5,9 +5,13 @@ const db = require("../data/dbConfig");
 const user = {
   username: "nunya",
   password: "bidness",
+  email: "nunya@bidness.com"
 };
 const noPassword = {
   username: "the homies",
+};
+const noUser = {
+  password: "bidness",
 };
 
 beforeAll(async () => {
@@ -36,11 +40,18 @@ describe("/register endpoint", () => {
     expect(response.body).toHaveProperty("id");
     expect(response.body).toHaveProperty("username");
     expect(response.body).toHaveProperty("password");
+    expect(response.body).toHaveProperty("email");
   });
   it("Fails with a missing password", async () => {
     const response = await request(server)
       .post("/api/auth/register")
       .send(noPassword);
+    expect(response.body).toBe("username and password required");
+  });
+  it("Fails with a missing username", async () => {
+    const response = await request(server)
+      .post("/api/auth/register")
+      .send(noUser);
     expect(response.body).toBe("username and password required");
   });
 });
@@ -61,7 +72,7 @@ describe("/login endpoint", () => {
   });
 });
 
-describe("/jokes endpoint", () => {
+describe("/posts endpoint", () => {
   beforeEach(async () => {
     await db("users").truncate();
     await request(server).post("/api/auth/register").send(user);
@@ -71,12 +82,12 @@ describe("/jokes endpoint", () => {
       body: { token },
     } = await request(server).post("/api/auth/login").send(user);
     const res = await request(server)
-      .get("/api/jokes")
+      .get("/api/posts")
       .set("Authorization", token);
     expect(res.status).toBe(200);
   });
   it("requires token", async () => {
-    const response = await request(server).get("/api/jokes");
+    const response = await request(server).get("/api/posts");
     expect(response.body).toBe("token required");
   });
 });
